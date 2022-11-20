@@ -6,10 +6,10 @@ export interface PublishJobPayload {
 }
 
 export interface IJobPostService {
-  publishJob: (signer: ethers.Signer, payload: PublishJobPayload) => void;
+  publishJob: (signer: ethers.Signer, payload: PublishJobPayload) => Promise<string>;
   unpublishJob: (signer: ethers.Signer, jobId: string) => void;
   closeJobOffer: (signer: ethers.Signer, jobId: string) => void;
   getMyJobs: (signer: ethers.Signer) => void;
-  getAaveWethBalance: () => Promise<string>;
-  getHiredCount: (jobId: string) => Promise<number>;
+  getAaveWethBalance: (signer: ethers.Signer) => Promise<string>;
+  getHiredCount: (signer: ethers.Signer, jobId: string) => Promise<number>;
 }

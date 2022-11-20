@@ -51,8 +51,10 @@ export default function Home() {
     console.info("connecting to metamask");
     if (typeof window.ethereum !== "undefined") {
       try {
+        console.log("connecting to metamask");
         const chainId = await ethereum.request({ method: 'eth_chainId' });
-        const supportedNetwork = chainId === "0x5"; //Goerli
+        console.log({ chainId });
+        const supportedNetwork = chainId === "0x7ab7"; //wallaby
         setIsSupportedNetwork(supportedNetwork);
         if (supportedNetwork) {
           await ethereum.request({ method: "eth_requestAccounts" });
@@ -61,7 +63,7 @@ export default function Home() {
           setProvider(provider);
           setSigner(provider.getSigner());
           setSignerAddress(await provider.getSigner().getAddress());
-          setContractLendingBalance(await jobPostServiceInstance.getAaveWethBalance());
+          setContractLendingBalance(await jobPostServiceInstance.getAaveWethBalance(signer));
         }
 
         ethereum.on('accountsChanged', onaAccountsChanged);
@@ -105,13 +107,13 @@ export default function Home() {
                 <RecruiterView onChangeOption={onChangeOption} jobPostingsOptionSelected={selectedOption.option === 'jobPostings'} signer={signer} jobApplicationServiceInstance={jobApplicationServiceInstance} jobPostServiceInstance={jobPostServiceInstance} />}
             </div>}
             {!hasMetaMask && <div className="alert alert-danger" role="alert"> You need Metamask to use this app.</div>}
-            {!isSupportedNetwork && <div className="alert alert-danger" role="alert"> Web3 jobs is currently in beta. Only available on Goerli Tesnet. Change your metamask network!</div>}
+            {!isSupportedNetwork && <div className="alert alert-danger" role="alert"> Web3 jobs is currently in beta. Only available on wallaby Tesnet. Change your metamask network!</div>}
             <footer className="bg-white">
               <div className="mt-8 border-t border-gray-200 pt-8 md:flex md:items-center md:justify-between">
                 <div className="flex space-x-6 md:order-2">
                   <div className="text-sm text-gray-500">
                     <p className="text-base leading-6 text-indigo-400">
-                      Aave Balance: <span className="text-base leading-6 text-gray-500">{`${contractLendingBalance ? parseFloat(contractLendingBalance).toFixed(4) + " Ether" : "..."}`}</span>
+                      Contract Balance: <span className="text-base leading-6 text-gray-500">{`${contractLendingBalance >= 0 ? parseFloat(contractLendingBalance).toFixed(4) + " TFIL" : "..."}`}</span>
                     </p>
                   </div>
                 </div>

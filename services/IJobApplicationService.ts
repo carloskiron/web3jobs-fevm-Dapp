@@ -17,15 +17,15 @@ export interface ChangeApplicationStatus {
 export interface IJobApplicationService {
   newApplication: (signer: ethers.Signer, jobId: string) => void;
   getMyApplications: (signer: ethers.Signer) => void;
-
-  getMyApplicants: (jobId: string) => void;
-  canClaimBounty: (applicantAddress: string, jobId: string) => Promise<boolean>;
+  getMyApplicants: (signer: ethers.Signer, jobId: string) => void;
+  canClaimBounty: (signer: ethers.Signer, applicantAddress: string, jobId: string) => Promise<boolean>;
   claimBounty: (signer: ethers.Signer, jobId: string) => void;
   changeApplicationStatus: (
     signer: ethers.Signer,
     payload: ChangeApplicationStatus
   ) => void;
   getApplicants: (
+    signer: ethers.Signer,
     applicantAddress: string,
     jobId: string,
     index: number

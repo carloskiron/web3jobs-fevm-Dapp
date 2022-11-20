@@ -100,7 +100,7 @@ export default function NewJobPost({ onCancel, onSave, signer }) {
 
                         <div className="sm:col-span-2">
                             <label htmlFor="first-name" className="block text-sm font-medium text-gray-700">
-                                Bounty <small>(Ether)</small> *
+                                Bounty <small>(Fil)</small> *
                             </label>
                             <div className="mt-1">
                                 <input

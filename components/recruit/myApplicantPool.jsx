@@ -28,15 +28,15 @@ export default function MyApplicantPool({ signer, jobApplicationServiceInstance 
 
             setApplicants(newList);
             setLoadingStatuses(true);
-            for (let i = 0; i < newList.length; i++) {
+            for (const element of newList) {
                 let status = ApplicationStatus.SCREENING;
                 try {
-                    status = await jobApplicationServiceInstance.getApplicants(newList[i].applicantAddress, newList[i].publishedId, 0);
+                    status = await jobApplicationServiceInstance.getApplicants(signer, element.applicantAddress, element.publishedId, 0);
                     console.log('status', status);
                 } catch (error) {
                     console.log("Not found");
                 }
-                newList[i].status = status;
+                element.status = status;
             }
             setApplicants(newList);
 

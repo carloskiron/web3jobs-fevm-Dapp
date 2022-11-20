@@ -34,7 +34,7 @@ export default function JobPostings({ signer, jobPostServiceInstance }) {
 
             const publishedId = await jobPostServiceInstance.publishJob(signer, {
                 jobId: newJobPost._id,
-                bountyAmount: newJobPost.bountyAmount,
+                bountyAmount: newJobPost.bountyAmount
             });
 
             newJobPost.publishedId = publishedId;

@@ -30,8 +30,8 @@ export default function MyApplications({ signer, jobApplicationServiceInstance }
                 let status = ApplicationStatus.SCREENING;
                 let canClaim = false;
                 try {
-                    status = await jobApplicationServiceInstance.getApplicants(element.applicantAddress, element.publishedId, 0);
-                    canClaim = await jobApplicationServiceInstance.canClaimBounty(element.applicantAddress, element.publishedId);
+                    status = await jobApplicationServiceInstance.getApplicants(signer, element.applicantAddress, element.publishedId, 0);
+                    canClaim = await jobApplicationServiceInstance.canClaimBounty(signer, element.applicantAddress, element.publishedId);
                 } catch (error) {
                     console.log("Not found");
                 }

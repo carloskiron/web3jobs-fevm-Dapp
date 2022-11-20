@@ -1,63 +1,98 @@
-import { ethers, providers } from "ethers";
+import { ethers } from "ethers";
 import {
   ChangeApplicationStatus,
   IJobApplicationService,
 } from "./IJobApplicationService";
 import { injectable } from "tsyringe";
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "./constants";
+import { CONTRACT_ABI, CONTRACT_ADDRESS, callRpc } from "./helpers";
+import fa from "@glif/filecoin-address";
 
 @injectable()
 export class JobApplicationService implements IJobApplicationService {
-  // init
-  provider: ethers.providers.Provider;
-  jobsContract: ethers.Contract;
-  jobsSignedContract: ethers.Contract;
 
-  constructor() {
-    this.provider = new providers.EtherscanProvider("goerli", process.env.NEXT_PUBLIC_PROVIDER);
-
-    this.jobsContract = new ethers.Contract(
+  async newApplication(signer: ethers.Signer, jobId: string) {
+    const signedContract = new ethers.Contract(
       CONTRACT_ADDRESS,
       CONTRACT_ABI,
-      this.provider
+      signer
     );
+    const maxPriorityFeePerGas = (await callRpc("eth_maxPriorityFeePerGas", undefined)).result;
+    const f4Address = fa.delegatedFromEthAddress(await signer.getAddress()).toString();
+    const nonce = await (await callRpc("Filecoin.MpoolGetNonce", [f4Address])).result;
+    const tx = await signedContract.newApplication(jobId, {
+      maxPriorityFeePerGas,
+      maxFeePerGas: "0x2E90EDD000",
+      gasLimit: 1000000000, // BlockGasLimit / 10
+      nonce,
+    });
+    await tx.wait();
   }
-  async newApplication(signer: ethers.Signer, jobId: string) {
-    const signedContract = this.jobsContract.connect(signer);
-    const tx = await signedContract.newApplication(jobId);
-    const receipt = await tx.wait();
-    return receipt;
-  }
-  async getMyApplicants(jobId: string) {
-    const result = await this.jobsContract.getMyApplicants(jobId);
+
+  async getMyApplicants(signer: ethers.Signer, jobId: string) {
+    const signedContract = new ethers.Contract(
+      CONTRACT_ADDRESS,
+      CONTRACT_ABI,
+      signer
+    );
+    const result = await signedContract.getMyApplicants(jobId);
     return result;
   }
   async claimBounty(signer: ethers.Signer, jobId: string) {
-    const signedContract = this.jobsContract.connect(signer);
-    const tx = await signedContract.claimBounty(jobId);
-    const receipt = await tx.wait();
-    return receipt;
+    const signedContract = new ethers.Contract(
+      CONTRACT_ADDRESS,
+      CONTRACT_ABI,
+      signer
+    );
+    const maxPriorityFeePerGas = (await callRpc("eth_maxPriorityFeePerGas", undefined)).result;
+    const f4Address = fa.delegatedFromEthAddress(await signer.getAddress()).toString();
+    const nonce = await (await callRpc("Filecoin.MpoolGetNonce", [f4Address])).result;
+    const tx = await signedContract.claimBounty(jobId, {
+      maxPriorityFeePerGas,
+      maxFeePerGas: "0x2E90EDD000",
+      gasLimit: 1000000000, // BlockGasLimit / 10
+      nonce,
+    });
+    await tx.wait();
   }
   async changeApplicationStatus(
     signer: ethers.Signer,
     payload: ChangeApplicationStatus
   ) {
-    const signedContract = this.jobsContract.connect(signer);
+    const signedContract = new ethers.Contract(
+      CONTRACT_ADDRESS,
+      CONTRACT_ABI,
+      signer
+    );
+    const maxPriorityFeePerGas = (await callRpc("eth_maxPriorityFeePerGas", undefined)).result;
+    const f4Address = fa.delegatedFromEthAddress(await signer.getAddress()).toString();
+    const nonce = await (await callRpc("Filecoin.MpoolGetNonce", [f4Address])).result;
     const tx = await signedContract.changeApplicationStatus(
       payload.applicantAddress,
       payload.jobId,
-      payload.status
-    );
-    const receipt = await tx.wait();
-    return receipt;
+      payload.status, {
+      maxPriorityFeePerGas,
+      maxFeePerGas: "0x2E90EDD000",
+      gasLimit: 1000000000, // BlockGasLimit / 10
+      nonce,
+    });
+    await tx.wait();
   }
   async getMyApplications(signer: ethers.Signer) {
-    const signedContract = this.jobsContract.connect(signer);
+    const signedContract = new ethers.Contract(
+      CONTRACT_ADDRESS,
+      CONTRACT_ABI,
+      signer
+    );
     const value = await signedContract.getMyApplications();
     return value;
   }
-  async getApplicants(applicantAddress: string, jobId: string, index: number) {
-    const value = await this.jobsContract.Applicants(
+  async getApplicants(signer: ethers.Signer, applicantAddress: string, jobId: string, index: number) {
+    const signedContract = new ethers.Contract(
+      CONTRACT_ADDRESS,
+      CONTRACT_ABI,
+      signer
+    );
+    const value = await signedContract.Applicants(
       applicantAddress,
       jobId,
       index
@@ -65,10 +100,16 @@ export class JobApplicationService implements IJobApplicationService {
     return value;
   }
   async canClaimBounty(
+    signer: ethers.Signer,
     applicantAddress: string,
     jobId: string
   ): Promise<boolean> {
-    const value = await this.jobsContract.canClaimBounty(
+    const signedContract = new ethers.Contract(
+      CONTRACT_ADDRESS,
+      CONTRACT_ABI,
+      signer
+    );
+    const value = await signedContract.canClaimBounty(
       applicantAddress,
       jobId
     );

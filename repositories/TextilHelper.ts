@@ -206,4 +206,13 @@ export class TextilHelper {
     return await client.find<any>(this.threadId, 'jobPosting', query)
   }
 
+  async cleanJobsDB (recruiterAddress: string) {
+    const client = await this.getClient();
+    const query = new Where('recruiterAddress').eq(recruiterAddress);
+    const result = await client.find<any>(this.threadId, 'jobPosting', query)
+    for(let i = 0; i < result.length; i++) {
+      await client.delete(this.threadId, 'jobPosting', [result[i]._id]);
+    }
+  }
+
 }
